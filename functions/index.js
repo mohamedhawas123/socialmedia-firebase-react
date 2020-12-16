@@ -4,7 +4,7 @@ const functions = require('firebase-functions');
 
 const {getAllScreems, postOnescreem, getScreem, commentOnScream, likeScream, unlikeScream, deleteSCream } = require('./handlers/screem')
 
-const {signup, login, uploadImage, addUserDetails, getAuthenticat} = require('./handlers/users')
+const {signup, login, uploadImage, addUserDetails, getAuthenticat, getUserDetails, maketNotificationRead} = require('./handlers/users')
 
 const app = require('express')()
 const FBAuth = require('./utilty/fb');
@@ -25,6 +25,8 @@ app.post('/user', FBAuth, addUserDetails)
 app.get('/user', FBAuth, getAuthenticat)
 app.post('/signup', signup)
 app.post('/login', login)
+app.get('/user/:handle', getUserDetails)
+app.post('/notifications', FBAuth ,maketNotificationRead)
 
 
 
@@ -99,10 +101,17 @@ exports.createNotificationOnComment = functions
   });
 
 
+//exports.onUserImageChange = functions.firestore.document('/user/{userId}')
+//.onUpdate((chage) => {
+
+//})
 
 
 
-  /*
+
+
+
+/*
 exports.createNotificationOnlike = functions.firestore.document('likes/{id}')
 .onCreate( (snapshot) => {
     return admin.firestore().doc(`/screms/${snapshot.data().screamId}`)

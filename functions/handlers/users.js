@@ -75,7 +75,7 @@ exports.signup = (req, res) => {
         return res.status(400).json({email: 'email is already in use'});
   
       }else {
-        return res.status(500).json({error: err.code})
+        return res.status(500).json({general: 'somthing went wrong please try again'})
       }
     })
     
@@ -224,4 +224,55 @@ exports.uploadImage = (req, res) => {
     })
   })
   busboy.end(req.rawBody);
+}
+
+
+exports.getUserDetails = (req, res) => {
+  let userData ={};
+  admin.firestore().doc(`/users/${req.params.handle}`).get()
+  .then(doc => {
+    if(doc.exists) {
+      userData.user =doc.data();
+      return admin.firestore().collection('screms').where('userHandle', '==', req.params.handle)
+      .orderBy('createdAt', 'desc').get()
+    }else {
+      return res.status(404).json({error: 'User Not Found'})
+    }
+  })
+  .then(data => {
+    userData.screams = [];
+    data.forEach(doc => {
+      userData.screams.push({
+        body: doc.data().body,
+        userHandle: doc.data().userHandle,
+        userImage: doc.data().userImage,
+        likeCount: doc.data().likeCount,
+        commentCount: doc.data().commentCount,
+        screamId : doc.id
+      })
+    });
+    return res.json(userData)
+  })
+  .catch(err => {
+    console.log(err)
+    res.status(500).json({error: err.code})
+  })
+}
+
+
+exports.maketNotificationRead = (req, res) => {
+  let batch = admin.firestore().batch()
+  req.body.forEach(notificationId => {
+    const notification = admin.firestore().doc(`/notifications/${notificationId}`);
+    batch.update(notification, {read: true} )
+  });
+  batch.commit()
+  .then( () => {
+    return res.json({message: "notifcation marked read "})    
+  })
+  .catch(err => {
+    console.log(err)
+    return res.status(500).json({error: err.code})
+  })
+
 }
