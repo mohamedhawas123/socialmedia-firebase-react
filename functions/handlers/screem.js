@@ -215,7 +215,7 @@ exports.deleteSCream = (req, res) => {
       return res.status(404).json({error: 'Scream Not found'});
 
     }
-    if(doc.data().userHandle !== res.user.handle) {
+    if(doc.data().userHandle !== req.user.handle) {
       return res.status(404).json({error: 'You dont have the permissio to the fuck this'})
 
     }else {
@@ -226,6 +226,7 @@ exports.deleteSCream = (req, res) => {
     res.json({message: 'scream deleted successfuly'})
   } )
   .catch(err => {
+    console.error(err)
     return res.status(500).json({error: err.code})
 
   })

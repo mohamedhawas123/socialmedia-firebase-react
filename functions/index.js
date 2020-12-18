@@ -9,6 +9,7 @@ const {signup, login, uploadImage, addUserDetails, getAuthenticat, getUserDetail
 const app = require('express')()
 const FBAuth = require('./utilty/fb');
 const admin = require('firebase-admin');
+const { firestore } = require('firebase-admin');
 
 
 app.get('/screems', getAllScreems  )
@@ -101,11 +102,56 @@ exports.createNotificationOnComment = functions
   });
 
 
-//exports.onUserImageChange = functions.firestore.document('/user/{userId}')
-//.onUpdate((chage) => {
+exports.onUserImageChange = functions.region('europe-west1').firestore.document('/user/{userId}')
+.onUpdate((change) => {
+  if(change.before.data().imageUrl !== change.after.data().imageUrl) {
+    let batch = admin.firestore().batch();
+  return admin.firestore().collection('screms').where('userHandle',  '==', change.before.data().handle).get()
+  .then(data => {
+    data.forEach(doc => {
+      const scream = admin.firestore().doc(`/screms/${doc.id}`)
+      batch.update(scream, {userImage: change.after.data().imageUrl})
+    })
+    return batch.commit();
+  })
+  }else return true
 
-//})
+})
 
+
+
+exports.onScreamDelete = functions.region('europe-west1').firestore.document('/screms/{sceamId}')
+.onDelete((snapshot, context) => {
+  const screamId= context.params.screamId
+  
+  const batch = admin.firestore().batch()
+  return admin.firestore().collection('comments').where('screamId', '==', screamId).get()
+  .then(data =>{
+    data.forEach(doc => {
+      batch.delete(admin.firestore().doc(`/comments/${doc.id}`));
+
+    })
+    return admin.firestore().collection('likes').where('screamId', '==', screamId).get()
+  })
+  .then(data => {
+    data.forEach(doc => {
+      batch.delete(admin.firestore().doc(`/likes/${doc.id}`))
+    })
+    return admin.firestore().collection('notifications').where('screamId', '==', screamId).get()
+    
+  })
+  .then(data => {
+    data.forEach(doc => {
+      batch.delete(admin.firestore().doc(`/notifications/${doc.id}`))
+    })
+    return batch.commit()
+  })
+  .catch(err => {
+    console.log(err)
+
+  })
+
+})
 
 
 
