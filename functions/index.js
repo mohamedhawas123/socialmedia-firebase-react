@@ -30,6 +30,9 @@ app.get('/user/:handle', getUserDetails)
 app.post('/notifications', FBAuth ,maketNotificationRead)
 
 
+var cors = require('cors')
+
+app.use(cors()) // Use this after the variable declaration
 
 
 exports.api = functions.https.onRequest(app)
