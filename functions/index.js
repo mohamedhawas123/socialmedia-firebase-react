@@ -23,7 +23,7 @@ app.delete('/scream/:screamId', FBAuth, deleteSCream)
 
 app.post('/user/image', FBAuth ,uploadImage)
 app.post('/user', FBAuth, addUserDetails)
-app.get('/user', FBAuth, getAuthenticat)
+app.get('/user', FBAuth ,getAuthenticat)
 app.post('/signup', signup)
 app.post('/login', login)
 app.get('/user/:handle', getUserDetails)
