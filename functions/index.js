@@ -12,6 +12,9 @@ const admin = require('firebase-admin');
 const { firestore } = require('firebase-admin');
 
 
+const cors = require('cors')
+app.use(cors())
+
 app.get('/screems', getAllScreems  )
 app.post('/screem', FBAuth , postOnescreem)
 app.get('/screem/:screemId', getScreem)
@@ -30,9 +33,7 @@ app.get('/user/:handle', getUserDetails)
 app.post('/notifications', FBAuth ,maketNotificationRead)
 
 
-var cors = require('cors')
 
-app.use(cors()) // Use this after the variable declaration
 
 
 exports.api = functions.https.onRequest(app)

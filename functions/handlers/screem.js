@@ -66,7 +66,7 @@ exports.getScreem = (req, res) => {
     }
     screamData = doc.data()
     screamData.screemId = doc.id;
-    return admin.firestore().collection('comments').orderBy('createdAt', 'desc').where("screamid", '==', req.params.screemId).get()
+    return admin.firestore().collection('comments').orderBy('createdAt', 'desc').where("screamId", '==', req.params.screemId).get()
   })
   .then(data => {
     screamData.comments = []
